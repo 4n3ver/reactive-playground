@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "client.stock-details.url",
+      "type": "java.lang.String",
+      "description": "Description for client.stock-details.url."
+    },
+    {
+      "name": "client.stock-quote.url",
+      "type": "java.lang.String",
+      "description": "Description for client.stock-quote.url."
+    }
+  ] }

@@ -1,0 +1,45 @@
+version: "3.7"
+services:
+  stock-details:
+    build:
+      context: ./stock-details
+    environment:
+      - STOCK_DETAILS_MONGO_HOST=stock-details-mongo
+    env_file:
+      - mongo.env
+      - zipkin.env
+    depends_on:
+      - stock-details-mongo
+  stock-details-mongo:
+    image: mongo
+    restart: always
+    env_file:
+      - mongo.env
+  stock-quotes:
+    build:
+      context: ./stock-quotes
+    env_file:
+      - zipkin.env
+  trading-service:
+    build:
+      context: ./trading-service
+    ports:
+      - "3080:8080"
+    environment:
+      - STOCK_QUOTES_URL=http://stock-quotes:8080/quotes
+      - STOCK_DETAILS_URL=http://stock-details:8080/companies
+    env_file:
+      - zipkin.env
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "5775:5775/udp" # accept zipkin.thrift over compact thrift protocol (deprecated, used by legacy clients only)
+      - "6831:6831/udp" # accept jaeger.thrift over compact thrift protocol
+      - "6832:6832/udp" # accept jaeger.thrift over binary thrift protocol
+      - "5778:5778" # serve configs
+      - "16686:16686" # serve frontend
+      - "14268:14268" # accept jaeger.thrift directly from clients
+      - "9411:9411" # Zipkin compatible endpoint (optional)
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
